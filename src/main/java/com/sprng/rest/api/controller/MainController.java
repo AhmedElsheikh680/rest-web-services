@@ -1,10 +1,11 @@
 package com.sprng.rest.api.controller;
 
+import com.sprng.rest.api.exception.StudentErrorResponse;
+import com.sprng.rest.api.exception.StudentException;
 import com.sprng.rest.api.model.Student;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
@@ -46,7 +47,33 @@ public class MainController {
     // http://localhost:8080/api/v1/students/{id}
     @GetMapping("students/{id}")
     public Student getStudentById(@PathVariable int id){
-
+        if(id <= 0 || id > list.size()){
+            throw new StudentException("Student ID "+ id + " Not Found");
+        }
         return list.get(id -1);
     }
+
+    @ExceptionHandler
+    public ResponseEntity<StudentErrorResponse> getException(StudentException studentException){
+        StudentErrorResponse studentErrorResponse = new StudentErrorResponse();
+        studentErrorResponse.setStatusCode(HttpStatus.NOT_FOUND.value());
+        studentErrorResponse.setMessage(studentException.getMessage());
+        studentErrorResponse.setTimestamp(System.currentTimeMillis());
+        return new ResponseEntity<StudentErrorResponse>(studentErrorResponse, HttpStatus.NOT_FOUND);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
